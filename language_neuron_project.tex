@@ -344,7 +344,7 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 	
 	Так как каждые два нейрона содержат синапс, у каждого синапса свой вес, то необходимо ввести индексацию: $w_{ij}^{(l)}$
 	
-	i - номер узла в l+1 слое, а j - номер узла в l-ом слое (откуда-куда). Например $w_{21}^{(1)}$ означает вес синапса между вторый нейроном во втором слое и первым нейроном первого слоя.
+	i - номер узла в l+1 слое, а j - номер узла в l-ом слое (куда-откуда). Например $w_{21}^{(1)}$ означает вес синапса между вторый нейроном во втором слое и первым нейроном первого слоя.
 	
 	Аналогично для каждого нейрона есть коэффициент смещения, потому введём индексацию для него: $b_i^{(l)}$ - номер i-ого нейрона в l+1 слое.
 	
@@ -355,7 +355,13 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 	
 	В таком случае перепишем (2.2) с учётом новой индексации:
 	
-	\centerline{$h_i^{l} = \displaystyle\phi(\sum_{k=0}^{n}w_{ik}^{(l-1)}x_k + b_i^{(l-1)})$ (2.3)}
+	\centerline{$h_i^{(l)} = \displaystyle\phi(\underbrace{\sum_{k=0}^{n}w_{ik}^{(l-1)}x_k + b_i^{(l-1)}})$ (2.3)}
+	\centerline{   $z_i^{(l)}$}
+	
+	Или же:
+	
+	\centerline{$h_i^{(l)} = \displaystyle\phi(z_i^{(l)})$ (2.3)}
+		
 	
 	\centerline{\textbf{Процесс прямого распространения.}}
 	
@@ -372,10 +378,9 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 	
 	Для расчёта H вместо входных данных $x_i$ мы используем выходные данные от синапсов $h_i$. Аналогично будем делать, если в нашей системе несколько слоёв: выходный синапс одного нейрона является входным синапсом другого нейрона.
 	
-	Данная нотация прекрасно читается в случае малых размеров системы нейронов, но при большом их количестве, данная запись становится громодской, потому её можно записать через матрицы. 
-	Чтобы не путаться с H, мы введём следующее обозначение:
+	Данная нотация прекрасно читается в случае малых размеров системы нейронов, но при большом их количестве, данная запись становится громодской, потому её можно записать через матрицы. Для этого мы введём следующее обозначение:
 	
-	\centerline{ $\mathcal{H}^{(l)} = \begin{pmatrix}
+	\centerline{ $H^{(l)} = \begin{pmatrix}
 		h_1^{(l)} \\
 		\vdots \\
 		h_n^{(l)}
@@ -383,7 +388,7 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 	
 	В нашем случае же случае:
 	
-	\centerline{$\mathcal{H}^{(2)} = \begin{pmatrix}
+	\centerline{$H^{(2)} = \begin{pmatrix}
 		h_1^{(2)} \\
 		h_2^{(2)} \\
 		h_3^{(2)}
@@ -391,7 +396,7 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 	
 	Немного изменим $\phi$: теперь она будет принимать матрицу и возвращать матрицу:
 	
-	\centerline{$\mathcal{H}^{(2)} = \begin{pmatrix}
+	\centerline{$H^{(2)} = \begin{pmatrix}
 		h_1^{(2)} \\
 		h_2^{(2)} \\
 		h_3^{(2)}
@@ -399,7 +404,6 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 		w_{11}^{(1)}x_1 + w_{12}^{(1)}x_2  + w_{13}^{(1)}x_3 + b_1^{(1)} \\
 		w_{21}^{(1)}x_1 + w_{22}^{(1)}x_2  + w_{23}^{(1)}x_3 + b_2^{(1)} \\
 		w_{31}^{(1)}x_1 + w_{32}^{(1)}x_2  + w_{33}^{(1)}x_3 + b_3^{(1)} \end{pmatrix}$}
-	\newpage
 	Поподробнее рассмотрим матрицу, которая является агрументом:
 	
 	\centerline{$\begin{pmatrix}
@@ -435,31 +439,194 @@ float approximation__devirate(function* __function, float __point_devirative,  f
 		
 		Положим следующее:
 		
-		\centerline{$\mathcal{B}^{(l)} = \begin{pmatrix}
+		\centerline{$B^{(l)} = \begin{pmatrix}
 		b_1^{(l)} \\
 		\vdots \\
 		b_n^{(l)} \end{pmatrix} $}
 		
-		\centerline{$\mathcal{W}^{(l)} = \begin{pmatrix}
+		\centerline{$W^{(l)} = \begin{pmatrix}
 		w_{11}^{(l)} & \cdots & w_{1i}^{(l)} \\ 
 		\vdots & \ddots & \vdots \\
 		w_{j1}^{(l)} & \dots & w_{ji}^{(l)} \end{pmatrix}$}
 		
 	Тогда наш выходной слой в новых обозначениях:
 	
-	\centerline{$\mathcal{H}^{(2)} =\phi(\mathcal{W}^{(1)} * \mathcal{H}^{(1)} +  \mathcal{B}^{(1)})$}
+	
+	\centerline{$H^{(2)} =\phi(W^{(1)} * H^{(1)} +  B^{(1)})$}
 	
 	\begin{remark}
-		$\mathcal{H}_1$ - матрица входных значений нейросети.
+		$H^{(1)}$ - матрица входных значений нейросети.
 	\end{remark}
 	
 	Исходя из этого:
 	
-	\centerline{$H = \mathcal{H}^{(3)} = \phi(\mathcal{W}^{(2)} * \mathcal{H}^{(2)} +  \mathcal{B}^{(2)})$}
+	\centerline{$H = H^{(3)} = \phi(W^{(2)} *H^{(2)} +  B^{(2)})$}
 	
 	В дальнейшем будет пользоваться этим в общем виде:
 	
-	\centerline{$\mathcal{H}^{(l)} =  \phi(\mathcal{W}^{(l-1)} * \mathcal{H}^{(l-1)}+  \mathcal{B}^{(l-1)})$}
+	\centerline{$H^{(l)} =  \phi(W^{(l-1)} * H^{(l-1)}+ B^{(l-1)})$}
+	
+	
+	\centerline{\textbf{Процесс обратного распространения. Градиентный спуск. }}
+	
+	Весь процесс обучения нейросети заключается в верной корректировке значений всех весов нейросети. Фактически, вся нейросеть - это большая функция, принимающая тысячи значений весов и сдвигов. 
+	
+	Наиболее вероятным способом обучения нейросети является пара "вход-выход". Рассмотрим пример:
+	
+	
+	\centerline{$X = \begin{pmatrix}
+	abstract input 1 \\
+	abstract input 2\\
+	abstract input 3\\
+	\vdots
+	\end{pmatrix}$}
+	
+	\centerline{$Y = \begin{pmatrix}
+	abstract output 1 \\
+	abstract output 2\\
+	abstract output 3\\
+	\vdots
+	\end{pmatrix}$}
+	
+	Каждому $X_i$ соответсвует одно $Y_i$. X - матрица всех входов, которые принимает нейросеть, а Y - матрица её выхода. Эти значения мы заранее знаем: например, обучая нейросеть опознавать картинки, мы знаем что на ней изображено. 
+	
+	\begin{remark}
+		Все входные и выходные данные будут обработаны, став числовыми значениями, поскольку сама нейросеть работает с числами, потому в дальнейшем мы будем использовать именно их.
+	\end{remark}
+	
+	Но как скорректировать веса, зная $X_i$ и $Y_i$? Очевидно, что нейросеть в любом случае даст какой-либо выход - $H = H^{(L)}$, где $L$ - количество слоёв в нейросети. Для начала мы рассмотрим нейросеть на  рис. 8:
+		
+	\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.5\linewidth]{neuron_algorithm.png}
+			\caption{Нейросеть с функцией ошибки $\mathcal{L}$.}
+			\label{fig:mpr}
+	\end{figure}
+	
+	\newpage
+	
+	Тогда функция ошибки будет: 
+	
+			\centerline{$\mathcal{L}(w^{(1)}, b^{(2)}, \dots w^{(L)}, b^{(L)})$ или}
+			\centerline{$\mathcal{L}(\{w^{(i)}\}, \{b^{(i)}\})$}
+	
+	Поскольку в данном примере у каждого нейрона всего два синапса(входной и выходной), то индексацию можно опустить в силу её очевидности.
+	
+	Мы формализовали нашу проблему: заместо корректировки весов, мы будем искать такие $\{w^{(j)}\}$ и $\{b^{(j)}\}$, что при таких значениях достигается $\min(\mathcal{L})$. Для этого мы будем использовать \textit{градиентный спуск}.
+	
+	Учитывая, что нам известен конечный выход (Y), то мы будем идти с конца. Пусть ошибка при заданных выходных данных - это $\mathcal{L}_0$.
+	Рассмотрим, как зависит $\mathcal{L}_0$ от $w^{(L)}$:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial w^{(L)}}$}
+	
+	Но мы знаем, что $\mathcal{L}_0$ зависит в любом случае от $z^{(L)}$, которое зависит от $w^{(L)}$. Тогда по цепному правилу:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial w^{(L)}} = \frac{\partial z^{(L)}}{\partial w^{(L)}}\frac{\partial h^{(L)}}{\partial z^{(L)}}\frac{\partial \mathcal{L}_0 }{\partial h^{(L)}}$}
+	
+	Рассмотрим каждую частную производную по отдельности:
+	
+	\centerline{$\frac{\partial h^{(L)}}{\partial z^{(L)}} = \frac{\partial \phi}{\partial z^{(L)}} = \phi'(z^{(L)})$}
+	
+	\centerline{$\frac{\partial z^{(L)}}{\partial w^{(L)}} = \frac{\partial (w^{(L)}h^{(L-1)}+b^{(L)})}{\partial w^{(L)}} = h^{(L-1)}$}
+	
+	Пока мы чётко не задали функцию $\mathcal{L}_0$, то оставим частую производную от неё.
+	
+	Тогда:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial w^{(L)}} = h^{(L-1)}\phi'(z^{(L)})\frac{\partial \mathcal{L}_0 }{\partial h^{(L)}}$}
+	
+	Аналогично несложно рассчитать для сдвига $b^{(L)}$:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial b^{(L)}} = \frac{\partial z^{(L)}}{\partial b^{(L)}}\frac{\partial h^{(L)}}{\partial z^{(L)}}\frac{\partial \mathcal{L}_0 }{\partial h^{(L)}}$}
+	
+	\centerline{$\frac{\partial h^{(L)}}{\partial z^{(L)}} = \frac{\partial \phi}{\partial z^{(L)}} = \phi'(z^{(L)})$}
+	
+	\centerline{$\frac{\partial z^{(L)}}{\partial b^{(L)}}= \frac{\partial(w^{(L)}h^{(L)}+b^{(L)})}{\partial b^{(L)}} = 1 \Rightarrow$}
+
+	\centerline{$\Rightarrow \frac{\partial \mathcal{L}_0}{\partial b^{(L)}} = \phi'(z^{(L)})\frac{\partial \mathcal{L}_0 }{\partial h^{(L)}}$}
+	
+	Сама же зависимость общей ошибки вычисляется, как среднее всех ошибок при всех данных (наборах):	
+
+    \centerline{$\frac{\partial \mathcal{L}}{\partial w^{(L)}} = \overline{\frac{\partial  \mathcal{L}_k}{\partial w^{(L)}}}$}
+	
+	И это один из компонентов. Аналогично мы вычисляем зависимость от остальных сдвигов и весов (заменив $w^{(L)}$ на $b^{(L)}$, мы получаем  формулу для сдвига).
+	\newpage
+	Что делать, если у нас несколько синапсов, более комплексная архитектура, как на рисунке 7?
+	
+	Все будет выглядит аналогично: 
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial w_{ij}^{(L)}} = \frac{\partial \mathcal{L}_0}{\partial  h_i^{(L)}}\frac{\partial h_i^{(L)}}{\partial z_i^{(L)}}\frac{\partial z_i^{(L)}}{\partial w_{ij}^{(L)}}$}
+	
+	\centerline{$\frac{\partial h_i^{(L)}}{\partial z_i^{(L)}} = \phi'(z_i^{(L)})$}
+	
+	\centerline{$\frac{\partial z_i^{(L)}}{\partial w_{ij}^{(L)}} = h_j^{(L-1)}$}
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial w_{ij}^{(L)}} = h_j^{(L-1)} \phi'(z_i^{(L)}) \frac{\partial \mathcal{L}_0}{\partial  h_i^{(L)}}$}
+	
+	Чтобы посчитать зависимость $\frac{\partial \mathcal{L}_0}{\partial  h_i^{(L)}}$, рассмотрим такую же в предыдущем слое:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial  h_i^{(L-1)}}$}
+	
+	Аналогично предыдущим выкладкам мы получаем частную производную, но теперь нам необходимо посчитать общую зависимость синапсов, потому просуммируем:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial  h_i^{(L-1)}} = \displaystyle \sum_{j = 1}^{n_L}\frac{\partial z_j^{(L)}}{\partial h_i^{(L-1)}}\frac{\partial h_j^{(L)}}{\partial z_j^{(L)}}\frac{\partial \mathcal{L}_0}{\partial  h_j^{(L)}} $}
+	
+	Или же, смещая все индексы на единицу:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial  h_i^{(L)}} = \displaystyle \sum_{j = 1}^{n_{L+1}}\frac{\partial z_j^{(L+1)}}{\partial h_i^{(L)}}\frac{\partial h_j^{(L+1)}}{\partial z_j^{(L+1)}}\frac{\partial \mathcal{L}_0}{\partial  h_j^{(L+1)}} $}
+	
+	
+	Исходя из выкладок выше, получаем:
+	
+	\centerline{$\frac{\partial \mathcal{L}_0}{\partial w_{ij}^{(L)}} = h_j^{(L-1)} \phi'(z_i^{(L)}) \displaystyle \sum_{r=1}^{n_L}w_{rj}^{(L+1)}\phi '(z_r^{(L+1)})\frac{\partial \mathcal{L}_0}{\partial h_r^{(L+1)}}$}
+	Где $n_L$ - количество синапсов в слое в последнем слое.
+	
+	Или же в общем виде:
+	
+	\centerline{$\frac{\partial \mathcal{L}_k}{\partial w_{ij}^{(l)}} = h_j^{(l-1)} \phi'(z_i^{(l)}) \displaystyle \sum_{r=1}^{n_l}w_{rj}^{(l+1)}\phi '(z_r^{(l+1)})\frac{\partial \mathcal{L}_k}{\partial h_r^{(l+1)}}$}
+	
+	Аналогично, ошибка является средним всех ошибок:
+	
+	\centerline{$\frac{\partial \mathcal{L}}{\partial w_{ij}^{(l)}} = \overline{\frac{\partial \mathcal{L}_k}{\partial w_{ij}^{(l)}}}$}
+	
+	Тогда для рассчёта минимума функции в определённом случае, градиент будет равен:
+	
+	\centerline{$\nabla \mathcal{L}_k = \Big(\frac{\partial \mathcal{L}_k}{\partial w_{11}^{(1)}}, \dots, \frac{\partial \mathcal{L}_k}{\partial w_{ij}^{(L)}}, \frac{\partial \mathcal{L}_k}{\partial b_{1}^{(1)}}, \dots, \frac{\partial \mathcal{L}_k}{\partial b_{i}^{(L)}}\Big)$}
+	Поскольку градиент функции показывает в каком направлении функция растёт, то взяв его со знаком минус, мы получим её убывание.
+	
+	\newpage
+	
+	\centerline{\textbf{Обучение нейросети с помощью градиентного спуска.}}
+	\centerline{\textbf{Стохаический градиентный спуск.}}
+	
+	Чтобы разобраться в процессе нахождение подходящих весов, необходимо формализовать часть понятий. 
+	
+	\textit{Набором} называют пару (X, Y). Различают два вида наборов: \textit{учебный}, \textit{тестовый}. \textit{Датасетом} называется совокупность учебного и тестового набора. \textit{Поколением} называют полную итерацию всех учебных наборов и рассчётом ошибки для них. Тестовый же набор необходим для изучения точности работы нейросети. 
+	
+	Алгоритм обучения с помощью градиетного спуска таков:
+	
+	1. Установить случайные $w$ и $b$.
+	
+	2.1 С помощью процесса прямого распространения рассчитать выход нейросети.
+	
+	2.2 С помощью процесса обратного распостранения рассчитать ошибку для данного учебного набора. 
+	
+	3. Повторять 2.1-2.2 пока не закончаться учебные наборы. 
+	
+	4. Рассчитать среднюю ошибку, исходя из значений, полученных в 2.2.
+	
+	5. Пусть $P$ - матрица всех весов и смещений. Они расположены также, как и аргументы $\mathcal{L}$. Тогда новые веса и смещения необходимо посчитать по формуле:
+	
+	\centerline{$P_n = P - \eta \nabla \mathcal{L}$}	
+	
+	Где $\eta$ - шаг обучения. Его необоходимо менять из поколения в поколения, чтобы попасть в минимум функции ошибки. 
+	
+	Возникает следующая проблема: учебных наборов может быть несколько десятков тысяч.
+	
+	\begin{remark}
+		Для нейросетей, выполняющих простую работу: распозновать цифры, объекты, простой анализ данных. Например, у MNIST для распознования цифр на это выделено 60000 учебных и 100000 тестовых наборов. Для нейросетей, о которых речь пойдёт в дальнейшем, количество учебных наборов крайне велико: если один диалог или один документ считать ровно одним набором, то у LaMDA училась на 2.97 миллиардах и 1.12 миллиардах учебных наборах соотвественно, проанализируя более 1.56 триллионов слов - \cite{litlink5}
+	\end{remark} 
+	
 	\newpage	
 \addcontentsline{toc}{section}{Список используемой литературы}
  
@@ -473,7 +640,7 @@ float approximation__devirate(function* __function, float __point_devirative,  f
     
     \bibitem{litlink4} Agner Fog, “Instruction tables. Lists of instruction latencies, throughputs and micro-operation breakdowns for Intel, AMD and VIA CPUs”\ , стр 296-312 \newline
     
-    \bibitem{litlink5} 
+    \bibitem{litlink5} Romal Thoppilan, Daniel De Freitas, Jamie Hall Noam Shazeer and other,   "LaMDA: Language Models for Dialog Applications"\ , section 3
     
     \bibitem{litlink6} Loc Vu-Quoc, Alexander Hume, "Deep learning applied to computational mechanics: A comprehensive review, state of the art, and the classics"
     \bibitem{litlink7} Andrew Trask, David Gilmore, Matthew Russell, "Modeling Order in Neural Word Embeddings at Scale"\ - стр 8
